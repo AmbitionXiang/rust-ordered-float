@@ -1605,6 +1605,29 @@ mod impl_serde {
     }
 }
 
+#[cfg(feature = "deepsize")]
+mod impl_deepsize {
+    use super::{NotNan, OrderedFloat};
+    use core::f64;
+    use deepsize::{Context, DeepSizeOf};
+    #[cfg(not(feature = "std"))]
+    use num_traits::float::FloatCore as Float;
+    #[cfg(feature = "std")]
+    use num_traits::Float;
+
+    impl<T: Float + DeepSizeOf> DeepSizeOf for OrderedFloat<T> {
+        fn deep_size_of_children(&self, _: &mut Context) -> usize {
+            self.0.deep_size_of()
+        }
+    }
+
+    impl<T: Float + DeepSizeOf> DeepSizeOf for NotNan<T> {
+        fn deep_size_of_children(&self, _: &mut Context) -> usize {
+            self.0.deep_size_of()
+        }
+    }
+}
+
 #[cfg(feature = "rkyv")]
 mod impl_rkyv {
     use super::{NotNan, OrderedFloat};
